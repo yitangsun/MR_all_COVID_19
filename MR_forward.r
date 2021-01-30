@@ -59,75 +59,114 @@ My_MR <- function(exp_dat,outcome_dat) {
     
     dat=dat[is.na(dat$beta.outcome)==FALSE ,]
     
-    dat$len_SNP=length(dat$SNP)
-    dat$R_Square = 2*(dat$beta.exposure^2)*dat$eaf.exposure*(1-dat$eaf.exposure)
-    dat$Total_R_Square = sum(dat$R_Square)
-    dat$F_stat=dat$Total_R_Square*(dat$len_SNP)*(dat$samplesize.exposure-dat$len_SNP-1)/(1-dat$Total_R_Square)
-    dat$F_stat_sim=dat$Total_R_Square*(dat$samplesize.exposure)/(dat$len_SNP)
-    F_stat=data.frame(dat$id.exposure[1],dat$len_SNP[1],dat$samplesize.exposure[1],dat$Total_R_Square[1],dat$F_stat[1],dat$F_stat_sim[1])
-    colnames(F_stat) <- c("id.exposure","len_SNP","samplesize.exposure","Total_R_Square","F_stat","F_stat_sim")
-    
-    try(dat<-dat%>%select(beta.exposure, se.exposure, beta.outcome,se.outcome, mr_keep, id.exposure, id.outcome, 
-                          exposure, outcome, SNP,pval.exposure, pval.outcome, samplesize.exposure,
-                          len_SNP, R_Square, Total_R_Square, F_stat, F_stat_sim), silent=TRUE)
-    
-    # dat$af=0.07
-    # dat$ncase=1610
-    # dat$ncontrol=2180
-    # dat$prevalence=0.05
-    # 
-    # dat$b=get_r_from_lor (lor=dat$beta.outcome,af=dat$af,ncase=dat$ncase,ncontrol=dat$ncontrol,prevalence=dat$prevalence)
-    # 
-    # snp_r2.exposure=mr_steiger(p_exp=dat$pval.exposure, p_out=dat$pval.outcome, n_exp=dat$samplesize.exposure, n_out=dat$samplesize_col, r_exp=dat$a, r_out=dat$b)$r2_exp
-    # snp_r2.outcome=mr_steiger(p_exp=dat$pval.exposure, p_out=dat$pval.outcome, n_exp=dat$samplesize.exposure, n_out=dat$samplesize_col, r_exp=dat$a, r_out=dat$b)$r2_out
-    # Correct_causal_direction=mr_steiger(p_exp=dat$pval.exposure, p_out=dat$pval.outcome, n_exp=dat$samplesize.exposure, n_out=dat$samplesize_col, r_exp=dat$a, r_out=dat$b)$correct_causal_direction
-    # steiger_pval=mr_steiger(p_exp=dat$pval.exposure, p_out=dat$pval.outcome, n_exp=dat$samplesize.exposure, n_out=dat$samplesize_col, r_exp=dat$a, r_out=dat$b)$steiger_test
-    # Steiger=data.frame(dat$id.exposure[1], snp_r2.exposure, snp_r2.outcome, Correct_causal_direction, steiger_pval)
-    # colnames(Steiger)[1] <- "id.exposure"
-    
-    if (length(which(dat$mr_keep=='TRUE'))>3) {
-      PressoObject=run_mr_presso(dat, NbDistribution = length(dat$SNP)/0.05, SignifThreshold = 0.05)
-      if (length(PressoObject[[1]][['MR-PRESSO results']][['Distortion Test']][['Outliers Indices']]) >0 && PressoObject[[1]][['MR-PRESSO results']][['Distortion Test']][['Outliers Indices']]!=c("No significant outliers") && PressoObject[[1]][['MR-PRESSO results']][['Distortion Test']][['Outliers Indices']]!=c("All SNPs considered as outliers")) {
-        # OutliersIndices=PressoObject[[1]][['MR-PRESSO results']][['Distortion Test']][['Outliers Indices']]
-        # dat=dat[-OutliersIndices, ]
-        if (length(which(dat$mr_keep=='TRUE'))>2) {
-          pleiotropy=mr_pleiotropy_test(dat)
-          if (pleiotropy$pval<0.05) {
-            Heterogeneity=mr_heterogeneity(dat)
-            res <- mr(dat)
-            final_res = res[res$method=='MR Egger',]
-          } else {
-            Heterogeneity=mr_heterogeneity(dat)
-            if (Heterogeneity[Heterogeneity$method=='Inverse variance weighted',]$Q_pval<0.05 && Heterogeneity[Heterogeneity$method=='MR Egger',]$Q_pval<0.05) {
-              if (Heterogeneity[Heterogeneity$method=='Inverse variance weighted',]$Q_pval < Heterogeneity[Heterogeneity$method=='MR Egger',]$Q_pval) {
+    if (length(dat$SNP)>0) {
+      dat$len_SNP=length(dat$SNP)
+      dat$R_Square = 2*(dat$beta.exposure^2)*dat$eaf.exposure*(1-dat$eaf.exposure)
+      dat$Total_R_Square = sum(dat$R_Square)
+      dat$F_stat=dat$Total_R_Square*(dat$len_SNP)*(dat$samplesize.exposure-dat$len_SNP-1)/(1-dat$Total_R_Square)
+      dat$F_stat_sim=dat$Total_R_Square*(dat$samplesize.exposure)/(dat$len_SNP)
+      F_stat=data.frame(dat$id.exposure[1],dat$len_SNP[1],dat$samplesize.exposure[1],dat$Total_R_Square[1],dat$F_stat[1],dat$F_stat_sim[1])
+      colnames(F_stat) <- c("id.exposure","len_SNP","samplesize.exposure","Total_R_Square","F_stat","F_stat_sim")
+      
+      try(dat<-dat%>%select(beta.exposure, se.exposure, beta.outcome,se.outcome, mr_keep, id.exposure, id.outcome, 
+                            exposure, outcome, SNP,pval.exposure, pval.outcome, samplesize.exposure,
+                            len_SNP, R_Square, Total_R_Square, F_stat, F_stat_sim), silent=TRUE)
+      
+      # dat$af=0.07
+      # dat$ncase=1610
+      # dat$ncontrol=2180
+      # dat$prevalence=0.05
+      # 
+      # dat$b=get_r_from_lor (lor=dat$beta.outcome,af=dat$af,ncase=dat$ncase,ncontrol=dat$ncontrol,prevalence=dat$prevalence)
+      # 
+      # snp_r2.exposure=mr_steiger(p_exp=dat$pval.exposure, p_out=dat$pval.outcome, n_exp=dat$samplesize.exposure, n_out=dat$samplesize_col, r_exp=dat$a, r_out=dat$b)$r2_exp
+      # snp_r2.outcome=mr_steiger(p_exp=dat$pval.exposure, p_out=dat$pval.outcome, n_exp=dat$samplesize.exposure, n_out=dat$samplesize_col, r_exp=dat$a, r_out=dat$b)$r2_out
+      # Correct_causal_direction=mr_steiger(p_exp=dat$pval.exposure, p_out=dat$pval.outcome, n_exp=dat$samplesize.exposure, n_out=dat$samplesize_col, r_exp=dat$a, r_out=dat$b)$correct_causal_direction
+      # steiger_pval=mr_steiger(p_exp=dat$pval.exposure, p_out=dat$pval.outcome, n_exp=dat$samplesize.exposure, n_out=dat$samplesize_col, r_exp=dat$a, r_out=dat$b)$steiger_test
+      # Steiger=data.frame(dat$id.exposure[1], snp_r2.exposure, snp_r2.outcome, Correct_causal_direction, steiger_pval)
+      # colnames(Steiger)[1] <- "id.exposure"
+      
+      if (length(which(dat$mr_keep=='TRUE'))>3) {
+        PressoObject=run_mr_presso(dat, NbDistribution = length(dat$SNP)/0.05, SignifThreshold = 0.05)
+        if (length(PressoObject[[1]][['MR-PRESSO results']][['Distortion Test']][['Outliers Indices']]) >0 && PressoObject[[1]][['MR-PRESSO results']][['Distortion Test']][['Outliers Indices']]!=c("No significant outliers") && PressoObject[[1]][['MR-PRESSO results']][['Distortion Test']][['Outliers Indices']]!=c("All SNPs considered as outliers")) {
+          # OutliersIndices=PressoObject[[1]][['MR-PRESSO results']][['Distortion Test']][['Outliers Indices']]
+          # dat=dat[-OutliersIndices, ]
+          if (length(which(dat$mr_keep=='TRUE'))>2) {
+            pleiotropy=mr_pleiotropy_test(dat)
+            if (pleiotropy$pval<0.05) {
+              Heterogeneity=mr_heterogeneity(dat)
+              res <- mr(dat)
+              final_res = res[res$method=='MR Egger',]
+            } else {
+              Heterogeneity=mr_heterogeneity(dat)
+              if (Heterogeneity[Heterogeneity$method=='Inverse variance weighted',]$Q_pval<0.05 && Heterogeneity[Heterogeneity$method=='MR Egger',]$Q_pval<0.05) {
+                if (Heterogeneity[Heterogeneity$method=='Inverse variance weighted',]$Q_pval < Heterogeneity[Heterogeneity$method=='MR Egger',]$Q_pval) {
+                  res <- mr(dat)
+                  final_res = res[res$method=='MR Egger',]
+                } else {
+                  res <- mr(dat)
+                  final_res = res[res$method=='Inverse variance weighted',]
+                }
+              } else if (Heterogeneity[Heterogeneity$method=='Inverse variance weighted',]$Q_pval>=0.05 && Heterogeneity[Heterogeneity$method=='MR Egger',]$Q_pval<0.05) {
+                res <- mr(dat)
+                final_res = res[res$method=='Inverse variance weighted',]
+              } else if (Heterogeneity[Heterogeneity$method=='Inverse variance weighted',]$Q_pval<0.05 && Heterogeneity[Heterogeneity$method=='MR Egger',]$Q_pval>=0.05) {
                 res <- mr(dat)
                 final_res = res[res$method=='MR Egger',]
-              } else {
+              } else{
                 res <- mr(dat)
                 final_res = res[res$method=='Inverse variance weighted',]
               }
-            } else if (Heterogeneity[Heterogeneity$method=='Inverse variance weighted',]$Q_pval>=0.05 && Heterogeneity[Heterogeneity$method=='MR Egger',]$Q_pval<0.05) {
-              res <- mr(dat)
-              final_res = res[res$method=='Inverse variance weighted',]
-            } else if (Heterogeneity[Heterogeneity$method=='Inverse variance weighted',]$Q_pval<0.05 && Heterogeneity[Heterogeneity$method=='MR Egger',]$Q_pval>=0.05) {
+            }
+          } else if (length(which(dat$mr_keep=='TRUE'))==1) {
+            res <- mr(dat)
+            final_res = res[res$method=='Wald ratio',]
+          } else if (length(which(dat$mr_keep=='TRUE'))==2) {
+            res <- mr(dat)
+            final_res = res[res$method=='Inverse variance weighted',]
+          }
+        } else if (length(PressoObject[[1]][['MR-PRESSO results']][['Distortion Test']][['Outliers Indices']]) >0 && PressoObject[[1]][['MR-PRESSO results']][['Distortion Test']][['Outliers Indices']]!=c("No significant outliers") && PressoObject[[1]][['MR-PRESSO results']][['Distortion Test']][['Outliers Indices']]==c("All SNPs considered as outliers")) {
+          Heterogeneity=mr_heterogeneity(dat)
+          res <- mr(dat)
+          final_res = res[res$method=='MR Egger',]
+        } else {
+          if (length(which(dat$mr_keep=='TRUE'))>2) {
+            #Horizontal pleiotropy
+            pleiotropy=mr_pleiotropy_test(dat)
+            if (pleiotropy$pval<0.05) {
+              Heterogeneity=mr_heterogeneity(dat)
               res <- mr(dat)
               final_res = res[res$method=='MR Egger',]
-            } else{
-              res <- mr(dat)
-              final_res = res[res$method=='Inverse variance weighted',]
+            } else {
+              # Heterogeneity statistics
+              Heterogeneity=mr_heterogeneity(dat)
+              if (Heterogeneity[Heterogeneity$method=='Inverse variance weighted',]$Q_pval<0.05 && Heterogeneity[Heterogeneity$method=='MR Egger',]$Q_pval<0.05) {
+                if (Heterogeneity[Heterogeneity$method=='Inverse variance weighted',]$Q_pval < Heterogeneity[Heterogeneity$method=='MR Egger',]$Q_pval) {
+                  res <- mr(dat)
+                  final_res = res[res$method=='MR Egger',]
+                } else {
+                  res <- mr(dat)
+                  final_res = res[res$method=='Inverse variance weighted',]
+                }
+              } else if (Heterogeneity[Heterogeneity$method=='Inverse variance weighted',]$Q_pval>=0.05 && Heterogeneity[Heterogeneity$method=='MR Egger',]$Q_pval<0.05) {
+                res <- mr(dat)
+                final_res = res[res$method=='Inverse variance weighted',]
+              } else if (Heterogeneity[Heterogeneity$method=='Inverse variance weighted',]$Q_pval<0.05 && Heterogeneity[Heterogeneity$method=='MR Egger',]$Q_pval>=0.05) {
+                res <- mr(dat)
+                final_res = res[res$method=='MR Egger',]
+              } else{
+                res <- mr(dat)
+                final_res = res[res$method=='Inverse variance weighted',]
+              }
             }
+          } else if (length(which(dat$mr_keep=='TRUE'))==1) {
+            res <- mr(dat)
+            final_res = res[res$method=='Wald ratio',]
+          } else if (length(which(dat$mr_keep=='TRUE'))==2) {
+            res <- mr(dat)
+            final_res = res[res$method=='Inverse variance weighted',]
           }
-        } else if (length(which(dat$mr_keep=='TRUE'))==1) {
-          res <- mr(dat)
-          final_res = res[res$method=='Wald ratio',]
-        } else if (length(which(dat$mr_keep=='TRUE'))==2) {
-          res <- mr(dat)
-          final_res = res[res$method=='Inverse variance weighted',]
-        }
-      } else if (length(PressoObject[[1]][['MR-PRESSO results']][['Distortion Test']][['Outliers Indices']]) >0 && PressoObject[[1]][['MR-PRESSO results']][['Distortion Test']][['Outliers Indices']]!=c("No significant outliers") && PressoObject[[1]][['MR-PRESSO results']][['Distortion Test']][['Outliers Indices']]==c("All SNPs considered as outliers")) {
-        Heterogeneity=mr_heterogeneity(dat)
-        res <- mr(dat)
-        final_res = res[res$method=='MR Egger',]
+        } 
       } else {
         if (length(which(dat$mr_keep=='TRUE'))>2) {
           #Horizontal pleiotropy
@@ -165,47 +204,11 @@ My_MR <- function(exp_dat,outcome_dat) {
           res <- mr(dat)
           final_res = res[res$method=='Inverse variance weighted',]
         }
-      } 
-    } else {
-      if (length(which(dat$mr_keep=='TRUE'))>2) {
-        #Horizontal pleiotropy
-        pleiotropy=mr_pleiotropy_test(dat)
-        if (pleiotropy$pval<0.05) {
-          Heterogeneity=mr_heterogeneity(dat)
-          res <- mr(dat)
-          final_res = res[res$method=='MR Egger',]
-        } else {
-          # Heterogeneity statistics
-          Heterogeneity=mr_heterogeneity(dat)
-          if (Heterogeneity[Heterogeneity$method=='Inverse variance weighted',]$Q_pval<0.05 && Heterogeneity[Heterogeneity$method=='MR Egger',]$Q_pval<0.05) {
-            if (Heterogeneity[Heterogeneity$method=='Inverse variance weighted',]$Q_pval < Heterogeneity[Heterogeneity$method=='MR Egger',]$Q_pval) {
-              res <- mr(dat)
-              final_res = res[res$method=='MR Egger',]
-            } else {
-              res <- mr(dat)
-              final_res = res[res$method=='Inverse variance weighted',]
-            }
-          } else if (Heterogeneity[Heterogeneity$method=='Inverse variance weighted',]$Q_pval>=0.05 && Heterogeneity[Heterogeneity$method=='MR Egger',]$Q_pval<0.05) {
-            res <- mr(dat)
-            final_res = res[res$method=='Inverse variance weighted',]
-          } else if (Heterogeneity[Heterogeneity$method=='Inverse variance weighted',]$Q_pval<0.05 && Heterogeneity[Heterogeneity$method=='MR Egger',]$Q_pval>=0.05) {
-            res <- mr(dat)
-            final_res = res[res$method=='MR Egger',]
-          } else{
-            res <- mr(dat)
-            final_res = res[res$method=='Inverse variance weighted',]
-          }
-        }
-      } else if (length(which(dat$mr_keep=='TRUE'))==1) {
-        res <- mr(dat)
-        final_res = res[res$method=='Wald ratio',]
-      } else if (length(which(dat$mr_keep=='TRUE'))==2) {
-        res <- mr(dat)
-        final_res = res[res$method=='Inverse variance weighted',]
       }
     }
   }
-  
+    
+
   rm(dat)
   try(dat<- exp_dat %>% inner_join(outcome_dat, by= "SNP"), silent=TRUE)
   dat=dat[is.na(dat$effect_allele.exposure)==FALSE ,]
@@ -230,57 +233,79 @@ My_MR <- function(exp_dat,outcome_dat) {
     
     dat=dat[is.na(dat$beta.outcome)==FALSE ,]
     
-    if (length(which(dat$mr_keep=='TRUE'))>3) {
-      PressoObject=run_mr_presso(dat, NbDistribution = length(dat$SNP)/0.05, SignifThreshold = 0.05)
-      if (length(PressoObject[[1]][['MR-PRESSO results']][['Distortion Test']][['Outliers Indices']]) >0 && PressoObject[[1]][['MR-PRESSO results']][['Distortion Test']][['Outliers Indices']]!=c("No significant outliers") && PressoObject[[1]][['MR-PRESSO results']][['Distortion Test']][['Outliers Indices']]!=c("All SNPs considered as outliers")) {
-        # OutliersIndices=PressoObject[[1]][['MR-PRESSO results']][['Distortion Test']][['Outliers Indices']]
-        # dat=dat[-OutliersIndices, ]
-        if (length(which(dat$mr_keep=='TRUE'))>2) {
-          #Horizontal pleiotropy
-          pleiotropy=mr_pleiotropy_test(dat)
-          res <- mr(dat, method_list=c("mr_ivw_mre","mr_ivw","mr_egger_regression", "mr_two_sample_ml", "mr_simple_median", "mr_weighted_median", "mr_simple_mode", "mr_weighted_mode"))
-          IVW_MRE = res[res$method=='Inverse variance weighted (multiplicative random effects)',]
-          MR_Egger = res[res$method=='MR Egger',]
-          IVW = res[res$method=='Inverse variance weighted',]
-          ml = res[res$method=='Maximum likelihood',]
-          W_Med = res[res$method=='Weighted median',]
-          W_Mod = res[res$method=='Weighted mode',]
-        } else if (length(which(dat$mr_keep=='TRUE'))==1) {
-          res <- mr(dat, method_list=c("mr_wald_ratio"))
-          Wald = res[res$method=='Wald ratio',]
-        } else if (length(which(dat$mr_keep=='TRUE'))==2) {
-          res <- mr(dat, method_list=c("mr_ivw_mre","mr_ivw", "mr_two_sample_ml"))
-          IVW_MRE = res[res$method=='Inverse variance weighted (multiplicative random effects)',]
-          IVW = res[res$method=='Inverse variance weighted',]
-          ml = res[res$method=='Maximum likelihood',]
-        }
-      } else if (length(PressoObject[[1]][['MR-PRESSO results']][['Distortion Test']][['Outliers Indices']]) >0 && PressoObject[[1]][['MR-PRESSO results']][['Distortion Test']][['Outliers Indices']]!=c("No significant outliers") && PressoObject[[1]][['MR-PRESSO results']][['Distortion Test']][['Outliers Indices']]==c("All SNPs considered as outliers")) {
-        if (length(which(dat$mr_keep=='TRUE'))>2) {
-          #Horizontal pleiotropy
-          pleiotropy=mr_pleiotropy_test(dat)
-          res <- mr(dat, method_list=c("mr_ivw_mre","mr_ivw","mr_egger_regression", "mr_two_sample_ml", "mr_simple_median", "mr_weighted_median", "mr_simple_mode", "mr_weighted_mode"))
-          IVW_MRE = res[res$method=='Inverse variance weighted (multiplicative random effects)',]
-          MR_Egger = res[res$method=='MR Egger',]
-          IVW = res[res$method=='Inverse variance weighted',]
-          ml = res[res$method=='Maximum likelihood',]
-          W_Med = res[res$method=='Weighted median',]
-          W_Mod = res[res$method=='Weighted mode',]
-        } else if (length(which(dat$mr_keep=='TRUE'))==1) {
-          res <- mr(dat, method_list=c("mr_wald_ratio"))
-          Wald = res[res$method=='Wald ratio',]
-        } else if (length(which(dat$mr_keep=='TRUE'))==2) {
-          res <- mr(dat, method_list=c("mr_ivw_mre","mr_ivw", "mr_two_sample_ml"))
-          IVW_MRE = res[res$method=='Inverse variance weighted (multiplicative random effects)',]
-          IVW = res[res$method=='Inverse variance weighted',]
-          ml = res[res$method=='Maximum likelihood',]
+    if (length(dat$SNP)>0) {
+      if (length(which(dat$mr_keep=='TRUE'))>3) {
+        PressoObject=run_mr_presso(dat, NbDistribution = length(dat$SNP)/0.05, SignifThreshold = 0.05)
+        if (length(PressoObject[[1]][['MR-PRESSO results']][['Distortion Test']][['Outliers Indices']]) >0 && PressoObject[[1]][['MR-PRESSO results']][['Distortion Test']][['Outliers Indices']]!=c("No significant outliers") && PressoObject[[1]][['MR-PRESSO results']][['Distortion Test']][['Outliers Indices']]!=c("All SNPs considered as outliers")) {
+          # OutliersIndices=PressoObject[[1]][['MR-PRESSO results']][['Distortion Test']][['Outliers Indices']]
+          # dat=dat[-OutliersIndices, ]
+          if (length(which(dat$mr_keep=='TRUE'))>2) {
+            #Horizontal pleiotropy
+            pleiotropy=mr_pleiotropy_test(dat)
+            res <- mr(dat, method_list=c("mr_ivw_mre","mr_ivw","mr_egger_regression", "mr_two_sample_ml", "mr_simple_median", "mr_weighted_median", "mr_simple_mode", "mr_weighted_mode"))
+            IVW_MRE = res[res$method=='Inverse variance weighted (multiplicative random effects)',]
+            MR_Egger = res[res$method=='MR Egger',]
+            IVW = res[res$method=='Inverse variance weighted',]
+            ml = res[res$method=='Maximum likelihood',]
+            W_Med = res[res$method=='Weighted median',]
+            W_Mod = res[res$method=='Weighted mode',]
+          } else if (length(which(dat$mr_keep=='TRUE'))==1) {
+            res <- mr(dat, method_list=c("mr_wald_ratio"))
+            Wald = res[res$method=='Wald ratio',]
+          } else if (length(which(dat$mr_keep=='TRUE'))==2) {
+            res <- mr(dat, method_list=c("mr_ivw_mre","mr_ivw", "mr_two_sample_ml"))
+            IVW_MRE = res[res$method=='Inverse variance weighted (multiplicative random effects)',]
+            IVW = res[res$method=='Inverse variance weighted',]
+            ml = res[res$method=='Maximum likelihood',]
+          }
+        } else if (length(PressoObject[[1]][['MR-PRESSO results']][['Distortion Test']][['Outliers Indices']]) >0 && PressoObject[[1]][['MR-PRESSO results']][['Distortion Test']][['Outliers Indices']]!=c("No significant outliers") && PressoObject[[1]][['MR-PRESSO results']][['Distortion Test']][['Outliers Indices']]==c("All SNPs considered as outliers")) {
+          if (length(which(dat$mr_keep=='TRUE'))>2) {
+            #Horizontal pleiotropy
+            pleiotropy=mr_pleiotropy_test(dat)
+            res <- mr(dat, method_list=c("mr_ivw_mre","mr_ivw","mr_egger_regression", "mr_two_sample_ml", "mr_simple_median", "mr_weighted_median", "mr_simple_mode", "mr_weighted_mode"))
+            IVW_MRE = res[res$method=='Inverse variance weighted (multiplicative random effects)',]
+            MR_Egger = res[res$method=='MR Egger',]
+            IVW = res[res$method=='Inverse variance weighted',]
+            ml = res[res$method=='Maximum likelihood',]
+            W_Med = res[res$method=='Weighted median',]
+            W_Mod = res[res$method=='Weighted mode',]
+          } else if (length(which(dat$mr_keep=='TRUE'))==1) {
+            res <- mr(dat, method_list=c("mr_wald_ratio"))
+            Wald = res[res$method=='Wald ratio',]
+          } else if (length(which(dat$mr_keep=='TRUE'))==2) {
+            res <- mr(dat, method_list=c("mr_ivw_mre","mr_ivw", "mr_two_sample_ml"))
+            IVW_MRE = res[res$method=='Inverse variance weighted (multiplicative random effects)',]
+            IVW = res[res$method=='Inverse variance weighted',]
+            ml = res[res$method=='Maximum likelihood',]
+          }
+        } else {
+          if (length(which(dat$mr_keep=='TRUE'))>2) {
+            #Horizontal pleiotropy
+            pleiotropy=mr_pleiotropy_test(dat)
+            res <- mr(dat, method_list=c("mr_ivw_mre","mr_ivw","mr_egger_regression", "mr_two_sample_ml", "mr_simple_median", "mr_weighted_median", "mr_simple_mode", "mr_weighted_mode"))
+            IVW_MRE = res[res$method=='Inverse variance weighted (multiplicative random effects)',]
+            MR_Egger = res[res$method=='MR Egger',]
+            IVW = res[res$method=='Inverse variance weighted',]
+            ml = res[res$method=='Maximum likelihood',]
+            W_Med = res[res$method=='Weighted median',]
+            W_Mod = res[res$method=='Weighted mode',]
+          } else if (length(which(dat$mr_keep=='TRUE'))==1) {
+            res <- mr(dat, method_list=c("mr_wald_ratio"))
+            Wald = res[res$method=='Wald ratio',]
+          } else if (length(which(dat$mr_keep=='TRUE'))==2) {
+            res <- mr(dat, method_list=c("mr_ivw_mre","mr_ivw", "mr_two_sample_ml"))
+            IVW_MRE = res[res$method=='Inverse variance weighted (multiplicative random effects)',]
+            IVW = res[res$method=='Inverse variance weighted',]
+            ml = res[res$method=='Maximum likelihood',]
+          }
         }
       } else {
         if (length(which(dat$mr_keep=='TRUE'))>2) {
           #Horizontal pleiotropy
           pleiotropy=mr_pleiotropy_test(dat)
           res <- mr(dat, method_list=c("mr_ivw_mre","mr_ivw","mr_egger_regression", "mr_two_sample_ml", "mr_simple_median", "mr_weighted_median", "mr_simple_mode", "mr_weighted_mode"))
-          IVW_MRE = res[res$method=='Inverse variance weighted (multiplicative random effects)',]
           MR_Egger = res[res$method=='MR Egger',]
+          IVW_MRE = res[res$method=='Inverse variance weighted (multiplicative random effects)',]
           IVW = res[res$method=='Inverse variance weighted',]
           ml = res[res$method=='Maximum likelihood',]
           W_Med = res[res$method=='Weighted median',]
@@ -295,29 +320,9 @@ My_MR <- function(exp_dat,outcome_dat) {
           ml = res[res$method=='Maximum likelihood',]
         }
       }
-    } else {
-      if (length(which(dat$mr_keep=='TRUE'))>2) {
-        #Horizontal pleiotropy
-        pleiotropy=mr_pleiotropy_test(dat)
-        res <- mr(dat, method_list=c("mr_ivw_mre","mr_ivw","mr_egger_regression", "mr_two_sample_ml", "mr_simple_median", "mr_weighted_median", "mr_simple_mode", "mr_weighted_mode"))
-        MR_Egger = res[res$method=='MR Egger',]
-        IVW_MRE = res[res$method=='Inverse variance weighted (multiplicative random effects)',]
-        IVW = res[res$method=='Inverse variance weighted',]
-        ml = res[res$method=='Maximum likelihood',]
-        W_Med = res[res$method=='Weighted median',]
-        W_Mod = res[res$method=='Weighted mode',]
-      } else if (length(which(dat$mr_keep=='TRUE'))==1) {
-        res <- mr(dat, method_list=c("mr_wald_ratio"))
-        Wald = res[res$method=='Wald ratio',]
-      } else if (length(which(dat$mr_keep=='TRUE'))==2) {
-        res <- mr(dat, method_list=c("mr_ivw_mre","mr_ivw", "mr_two_sample_ml"))
-        IVW_MRE = res[res$method=='Inverse variance weighted (multiplicative random effects)',]
-        IVW = res[res$method=='Inverse variance weighted',]
-        ml = res[res$method=='Maximum likelihood',]
-      }
     }
   }
-  
+    
   if (exists("final_res")==TRUE ) {
     final_res$Test=n
     names(final_res)[names(final_res) == "method"] <- "Methods"
@@ -517,10 +522,19 @@ for (n in c("HGI_round_4_A2","HGI_round_4_B2",
   Trait <- read.csv("/scratch/ys98038/UKB/plink2_format/COVID_19/Analyses/SNP/All_Trait_IEU_GWAS.txt",header=F, as.is=T,sep = "\t")
   
   len_exp_file=length(Trait$V1)
-  for (e in c(2:352,354:9193, 9195:13475, 13477:13535, 13537:13560, 13562:18063, 18065:33689, 33691:33701, 33704:33707, 33709:33837, 33839:33916, 33920:34010, 34012:34094, 34096:34252, 34254:len_exp_file)) {
+  for (e in c(2:len_exp_file)) {
     exp_dat <- extract_instruments(Trait$V1[e])
     if (length(exp_dat$SNP)>0) {
-      My_MR(exp_dat,outcome_dat)
+      exp_dat=exp_dat[exp_dat$beta.exposure != 0, ]
+      exp_dat=exp_dat[exp_dat$se.exposure != 0, ]
+      if (length(exp_dat$SNP)>0) {
+        My_MR(exp_dat,outcome_dat)
+      }
     }
   }
 }
+
+
+######
+
+#  for (e in c(2:352,354:387,389:9193, 9195:13475, 13477:13535, 13537:13560, 13562:18063, 18065:33689, 33691:33701, 33704:33707, 33709:33837, 33839:33916, 33920:34010, 34012:34094, 34096:34252, 34254:len_exp_file)) {

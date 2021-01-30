@@ -517,7 +517,7 @@ for (n in c("HGI_round_4_A2","HGI_round_4_B2",
   Trait <- read.csv("/scratch/ys98038/UKB/plink2_format/COVID_19/Analyses/SNP/All_Trait_IEU_GWAS.txt",header=F, as.is=T,sep = "\t")
   
   len_exp_file=length(Trait$V1)
-  for (e in c(2:9193, 9195:13475, 13477:13535, 13537:13560, 13562:18063, 18065:33689, 33691:33701, 33704:33707, 33709:33837, 33839:33916, 33920:34010, 34012:34094, 34096:34252, 34254:len_exp_file)) {
+  for (e in c(2:352,354:9193, 9195:13475, 13477:13535, 13537:13560, 13562:18063, 18065:33689, 33691:33701, 33704:33707, 33709:33837, 33839:33916, 33920:34010, 34012:34094, 34096:34252, 34254:len_exp_file)) {
     exp_dat <- extract_instruments(Trait$V1[e])
     if (length(exp_dat$SNP)>0) {
       My_MR(exp_dat,outcome_dat)

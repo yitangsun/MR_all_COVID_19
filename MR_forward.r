@@ -68,7 +68,7 @@ My_MR <- function(exp_dat,outcome_dat) {
     colnames(F_stat) <- c("id.exposure","len_SNP","samplesize.exposure","Total_R_Square","F_stat","F_stat_sim")
     
     try(dat<-dat%>%select(beta.exposure, se.exposure, beta.outcome,se.outcome, mr_keep, id.exposure, id.outcome, 
-                          exposure, outcome, SNP,pval.exposure, pval.outcome, samplesize.exposure, samplesize.outcome,
+                          exposure, outcome, SNP,pval.exposure, pval.outcome, samplesize.exposure,
                           len_SNP, R_Square, Total_R_Square, F_stat, F_stat_sim), silent=TRUE)
     
     # dat$af=0.07
@@ -226,7 +226,7 @@ My_MR <- function(exp_dat,outcome_dat) {
     colnames(dat)[colnames(dat)=="beta.outcome"] <- "beta.o_old"
     colnames(dat)[colnames(dat)=="betaYG"] <- "beta.outcome"
     try(dat<-dat%>%select(beta.exposure, se.exposure, beta.outcome,se.outcome, mr_keep, id.exposure, id.outcome, 
-                          exposure, outcome, SNP,pval.exposure, pval.outcome, samplesize.exposure, samplesize.outcome), silent=TRUE)
+                          exposure, outcome, SNP,pval.exposure, pval.outcome, samplesize.exposure), silent=TRUE)
     
     dat=dat[is.na(dat$beta.outcome)==FALSE ,]
     
@@ -494,21 +494,24 @@ My_MR <- function(exp_dat,outcome_dat) {
   }
 }
 
-for (n in c("A2_ALL_eur_leave_23andme_20210107.b37","B1_ALL_eur_leave_23andme_20210107.b37","B2_ALL_eur_leave_23andme_20210107.b37","C2_ALL_eur_leave_23andme_20210107.b37","A2_ALL_eur_leave_ukbb_23andme_20210107.b37","B1_ALL_eur_leave_ukbb_23andme_20210107.b37","B2_ALL_eur_leave_ukbb_23andme_20210107.b37","C2_ALL_eur_leave_ukbb_23andme_20210107.b37")) {
-  outcomefile=paste(Pathway_SNP, "COVID19_HGI_", n ,".txt", sep="")
+for (n in c("HGI_round_4_A2","HGI_round_4_B2",
+            "HGI_round_5_A2_eur","HGI_round_5_A2",
+            "HGI_round_5_B2_eur","HGI_round_5_B2",
+            "HGI_round_5_C2_eur","HGI_round_5_C2")) {
+  outcomefile=paste(Pathway_geno,  n ,"_All_trait_01_29.txt", sep="")
   ####### Change csv file
   outcome_dat=read_outcome_data(
     filename = outcomefile,
     snps = NULL,
     sep = "\t",
     #phenotype_col = "outcome",
-    snp_col = "rsid",
+    snp_col = "V4",
     beta_col = "all_inv_var_meta_beta",
     se_col = "all_inv_var_meta_sebeta",
     eaf_col = "all_meta_AF",
     effect_allele_col = "ALT",
     other_allele_col = "REF",
-    samplesize_col = "all_meta_sample_N",
+    #samplesize_col = "all_meta_sample_N",
     pval_col = "p_value")
   
   Trait <- read.csv("/scratch/ys98038/UKB/plink2_format/COVID_19/Analyses/SNP/All_Trait_IEU_GWAS.txt",header=F, as.is=T,sep = "\t")

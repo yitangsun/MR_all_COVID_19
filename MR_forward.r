@@ -477,7 +477,7 @@ My_MR <- function(exp_dat,outcome_dat) {
     
     names(final_res)[names(final_res) == "id.exposure"] <- "id"
     
-    # final_res<-final_res%>%select(Test, id, trait, b_IVW_MRE, se_IVW_MRE, pval_IVW_MRE, b_Egger, se_Egger, pval_Egger,
+    # final_res<-final_res%>%select(Test, id, trait, b_IVW_MRE, se_IVW_MRE, pval_IVW_MRE, b_Egger, se_Egger, pval_Egger,b_Wald, se_Wald, pval_Wald,
     #                               Egger_intercept, pval_intercept, Het_IVW_pval, Het_Egger_pval,
     #                               b_W_Med, se_W_Med, pval_W_Med, b_W_Mod, se_W_Mod, pval_W_Mod,
     #                               b_PRESSO_raw, se_PRESSO_raw, pval_PRESSO_raw, b_PRESSO_corrected, se_PRESSO_corrected, pval_PRESSO_corrected, pval_PRESSO_Global,

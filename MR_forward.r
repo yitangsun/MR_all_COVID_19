@@ -517,7 +517,7 @@ for (n in c("HGI_round_4_A2","HGI_round_4_B2",
     effect_allele_col = "ALT",
     other_allele_col = "REF",
     #samplesize_col = "all_meta_sample_N",
-    pval_col = "p_value")
+    pval_col = "all_inv_var_meta_p")
   
   Trait <- read.csv("/scratch/ys98038/UKB/plink2_format/COVID_19/Analyses/SNP/All_Trait_IEU_GWAS.txt",header=F, as.is=T,sep = "\t")
   

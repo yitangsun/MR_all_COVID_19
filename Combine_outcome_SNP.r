@@ -1,5 +1,3 @@
-
-
 library(TwoSampleMR)
 library(dplyr)
 library(googlesheets)
@@ -18,16 +16,18 @@ library(mr.raps)
 # [1] 34513
 library(MRInstruments)
 library(MVMR)
-library(SNPlocs.Hsapiens.dbSNP144.GRCh37)
-library("SNPlocs.Hsapiens.dbSNP151.GRCh38")
+#library(SNPlocs.Hsapiens.dbSNP144.GRCh37)
+#library("SNPlocs.Hsapiens.dbSNP151.GRCh38")
 
 Pathway_SNP="/scratch/ys98038/UKB/plink2_format/COVID_19/Analyses/SNP/"
 Pathway_geno="/scratch/ys98038/UKB/plink2_format/COVID_19/Analyses/Genotype/"
-Pathway_out="/scratch/ys98038/UKB/plink2_format/COVID_19/Analyses/MR_result/result_WBC_01_28_5e-8/"
+Pathway_out="/scratch/ys98038/UKB/plink2_format/COVID_19/Analyses/MR_result/result_ALL_03_21/"
 #Trait_filename="All_Trait_IEU_GWAS_01_31.txt"
 Trait_filename="All_Trait_IEU_GWAS.txt"
 Out_SNP_filename="Exposure_SNP_All_trait.txt"
-Out_Geno_filename="_All_trait_01_29.txt"
+Out_Geno_filename="_All_trait_03_21.txt"
+COVID_LIST=c("HGI_round_4_A1","HGI_round_4_A2","HGI_round_4_B1","HGI_round_4_B2","HGI_round_4_C1","HGI_round_4_C2","HGI_round_5_A2_eur","HGI_round_5_A2_eur_leave_ukbb","HGI_round_5_B1_eur","HGI_round_5_B1_eur_leave_ukbb","HGI_round_5_B2_eur","HGI_round_5_B2_eur_leave_ukbb","HGI_round_5_C2_eur","HGI_round_5_C2_eur_leave_ukbb")
+
 
 #load("/scratch/ys98038/UKB/plink2_format/COVID_19/Analyses/SNP/SNPS_37_38.RData")
 Inputfile=paste(Pathway_SNP, Trait_filename, sep="")
@@ -46,7 +46,7 @@ for (n in 2:len_exp_file) {
 
 
 ######### Generate outcome dataset using Exposure_SNP_WBC.txt
-for (n in c("HGI_round_4_A2","HGI_round_4_B2","HGI_round_5_A2","HGI_round_5_A2_eur","HGI_round_5_B2","HGI_round_5_B2_eur","HGI_round_5_C2","HGI_round_5_C2_eur")) {
+for (n in COVID_LIST) {
   exp_dat_file=paste(Pathway_SNP, n, ".txt", sep="")
   tem_dat <- read.csv(exp_dat_file,header=T, as.is=T,sep = "\t")
   Input_SNP_filename=paste(Pathway_SNP, Out_SNP_filename, sep="")

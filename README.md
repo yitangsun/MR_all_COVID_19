@@ -32,7 +32,7 @@ Combine_outcome_SNP.r
 
 You only need to change the pathway.
 
-## Mendelian Randomization Study
+## Mendelian randomization study
 
 MR_forward.r
 

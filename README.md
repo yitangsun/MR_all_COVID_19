@@ -6,13 +6,13 @@ is published in [Research Square](https://www.researchsquare.com/article/rs-1490
 
 ## Table of Contents
 
-- Introduction
-- Download
-- Combine SNP
-- Mendelian Randomization Study
-- Getting help
-- Citation
-- License
+- [Introduction](https://github.com/yitangsun/MR_all_COVID_19#introduction)
+- [Download](https://github.com/yitangsun/MR_all_COVID_19#Download)
+- [Combine SNP](https://github.com/yitangsun/MR_all_COVID_19#Combine SNP)
+- [Mendelian Randomization Study](https://github.com/yitangsun/MR_all_COVID_19#Mendelian Randomization Study)
+- [Getting help](https://github.com/yitangsun/MR_all_COVID_19#Getting help)
+- [Citation](https://github.com/yitangsun/MR_all_COVID_19#Citation)
+- [License](https://github.com/yitangsun/MR_all_COVID_19#License)
 
 ## Introduction
 

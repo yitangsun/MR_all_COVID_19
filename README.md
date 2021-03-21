@@ -16,7 +16,7 @@ is published in [Research Square](https://www.researchsquare.com/article/rs-1490
 
 ## Introduction
 
-This directory contains supplementary code for our MR analysis to prioritize risk factors for severe COVID-19 using the TwoSampleMR R package by Yitang Sun and Kaixiong Ye.
+This directory contains supplementary code for our Mendelian randomization analysis to prioritize risk factors for severe COVID-19 using the TwoSampleMR R package by Yitang Sun and Kaixiong Ye.
 
 Any of the most recent COVID-19 GWAS can be used in the code to apply exhaustive MR analyses.
 

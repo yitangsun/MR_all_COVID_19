@@ -24,8 +24,8 @@ library(mr.raps)
 # [1] 34513
 library(MRInstruments)
 library(MVMR)
-library(SNPlocs.Hsapiens.dbSNP144.GRCh37)
-library("SNPlocs.Hsapiens.dbSNP151.GRCh38")
+#library(SNPlocs.Hsapiens.dbSNP144.GRCh37)
+#library("SNPlocs.Hsapiens.dbSNP151.GRCh38")
 
 ao <- available_outcomes()
 # data(gwas_catalog)
@@ -34,6 +34,9 @@ ao <- available_outcomes()
 Pathway_SNP="/scratch/ys98038/UKB/plink2_format/COVID_19/Analyses/SNP/"
 Pathway_geno="/scratch/ys98038/UKB/plink2_format/COVID_19/Analyses/Genotype/"
 Pathway_out="/scratch/ys98038/UKB/plink2_format/COVID_19/Analyses/MR_result/result_all_01_24/"
+COVID_LIST=c("HGI_round_4_A1","HGI_round_4_A2","HGI_round_4_B1","HGI_round_4_B2","HGI_round_4_C1","HGI_round_4_C2","HGI_round_5_A2_eur","HGI_round_5_A2_eur_leave_ukbb","HGI_round_5_B1_eur","HGI_round_5_B1_eur_leave_ukbb","HGI_round_5_B2_eur","HGI_round_5_B2_eur_leave_ukbb","HGI_round_5_C2_eur","HGI_round_5_C2_eur_leave_ukbb")
+Out_Geno_filename="_All_trait_03_21.txt"
+Trait_filename="All_Trait_IEU_GWAS.txt"
 
 ########Function
 My_MR <- function(exp_dat,outcome_dat) {
@@ -499,11 +502,8 @@ My_MR <- function(exp_dat,outcome_dat) {
   }
 }
 
-for (n in c("HGI_round_4_A2","HGI_round_4_B2",
-            "HGI_round_5_A2_eur","HGI_round_5_A2",
-            "HGI_round_5_B2_eur","HGI_round_5_B2",
-            "HGI_round_5_C2_eur","HGI_round_5_C2")) {
-  outcomefile=paste(Pathway_geno,  n ,"_All_trait_01_29.txt", sep="")
+for (n in COVID_LIST) {
+  outcomefile=paste(Pathway_geno,  n ,Out_Geno_filename, sep="")
   ####### Change csv file
   outcome_dat=read_outcome_data(
     filename = outcomefile,
@@ -519,7 +519,8 @@ for (n in c("HGI_round_4_A2","HGI_round_4_B2",
     #samplesize_col = "all_meta_sample_N",
     pval_col = "all_inv_var_meta_p")
   
-  Trait <- read.csv("/scratch/ys98038/UKB/plink2_format/COVID_19/Analyses/SNP/All_Trait_IEU_GWAS.txt",header=F, as.is=T,sep = "\t")
+  Inputfile=paste(Pathway_SNP, Trait_filename, sep="")
+  Trait <- read.csv(Inputfile,header=F, as.is=T,sep = "\t")
   
   len_exp_file=length(Trait$V1)
   for (e in c(2:len_exp_file)) {

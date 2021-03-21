@@ -16,7 +16,7 @@ is published in [Research Square](https://www.researchsquare.com/article/rs-1490
 
 ## Introduction
 
-Documentation of the MR analysis to prioritize risk factors for severe COVID-19 using TwoSampleMR by Yitang Sun and Kaixiong Ye.
+This directory contains supplementary code for our MR analysis to prioritize risk factors for severe COVID-19 using the TwoSampleMR R package by Yitang Sun and Kaixiong Ye.
 
 Any of the most recent COVID-19 GWAS can be used in the code to apply exhaustive MR analyses.
 
@@ -24,19 +24,19 @@ Any of the most recent COVID-19 GWAS can be used in the code to apply exhaustive
 
 Download_COVID_19.sh
 
-Only need to change link pathway to update more recent COVID-19 GWAS.
+You only need to change the link pathway to update the more recent COVID-19 GWAS.
 
 ## Combine SNP
 
 Combine_outcome_SNP.r
 
-Only need to change the pathway.
+You only need to change the pathway.
 
 ## Mendelian Randomization Study
 
 MR_forward.r
 
-Only need to change the pathway.
+You only need to change the pathway.
 
 ## Getting help
 

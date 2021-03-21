@@ -24,13 +24,19 @@ Any of the most recent COVID-19 GWAS can be used in the code to apply exhaustive
 
 Download_COVID_19.sh
 
+Only need to change link pathway to update more recent COVID-19 GWAS.
+
 ## Combine SNP
 
 Combine_outcome_SNP.r
 
+Only need to change the pathway.
+
 ## Mendelian Randomization Study
 
 MR_forward.r
+
+Only need to change the pathway.
 
 ## Getting help
 

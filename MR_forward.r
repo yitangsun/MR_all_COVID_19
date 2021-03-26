@@ -1,4 +1,3 @@
-
 # if (!requireNamespace("BiocManager", quietly = TRUE))
 #   install.packages("BiocManager")
 # BiocManager::install("SNPlocs.Hsapiens.dbSNP151.GRCh38")
@@ -34,11 +33,12 @@ ao <- available_outcomes()
 Pathway_SNP="/scratch/ys98038/UKB/plink2_format/COVID_19/Analyses/SNP/"
 Pathway_geno="/scratch/ys98038/UKB/plink2_format/COVID_19/Analyses/Genotype/"
 Pathway_out="/scratch/ys98038/UKB/plink2_format/COVID_19/Analyses/MR_result/result_ALL_03_21/"
-COVID_LIST=c("HGI_round_4_A1","HGI_round_4_A2","HGI_round_4_B1","HGI_round_4_B2","HGI_round_4_C1","HGI_round_4_C2","HGI_round_5_A2_eur","HGI_round_5_A2_eur_leave_ukbb","HGI_round_5_B1_eur","HGI_round_5_B1_eur_leave_ukbb","HGI_round_5_B2_eur","HGI_round_5_B2_eur_leave_ukbb","HGI_round_5_C2_eur","HGI_round_5_C2_eur_leave_ukbb")
+#COVID_LIST=c("HGI_round_4_A1","HGI_round_4_A2","HGI_round_4_B1","HGI_round_4_B2","HGI_round_4_C1","HGI_round_4_C2","HGI_round_5_A2_eur","HGI_round_5_A2_eur_leave_ukbb","HGI_round_5_B1_eur","HGI_round_5_B1_eur_leave_ukbb","HGI_round_5_B2_eur","HGI_round_5_B2_eur_leave_ukbb","HGI_round_5_C2_eur","HGI_round_5_C2_eur_leave_ukbb")
+
+COVID_LIST=c("")
 Out_Geno_filename="_All_trait_03_21.txt"
 Trait_filename="All_Trait_IEU_GWAS.txt"
 
-########Function
 My_MR <- function(exp_dat,outcome_dat) {
   rm(dat)
   try(dat<- exp_dat %>% inner_join(outcome_dat, by= "SNP"), silent=TRUE)
@@ -68,12 +68,14 @@ My_MR <- function(exp_dat,outcome_dat) {
       dat$Total_R_Square = sum(dat$R_Square)
       dat$F_stat=dat$Total_R_Square*(dat$len_SNP)*(dat$samplesize.exposure-dat$len_SNP-1)/(1-dat$Total_R_Square)
       dat$F_stat_sim=dat$Total_R_Square*(dat$samplesize.exposure)/(dat$len_SNP)
-      F_stat=data.frame(dat$id.exposure[1],dat$len_SNP[1],dat$samplesize.exposure[1],dat$Total_R_Square[1],dat$F_stat[1],dat$F_stat_sim[1])
-      colnames(F_stat) <- c("id.exposure","len_SNP","samplesize.exposure","Total_R_Square","F_stat","F_stat_sim")
+      dat$F_statistic_pre = (dat$beta.exposure/dat$se.exposure)^2
+      dat$F_statistic = sum(dat$F_statistic_pre)
+      F_stat=data.frame(dat$id.exposure[1],dat$len_SNP[1],dat$samplesize.exposure[1],dat$Total_R_Square[1],dat$F_stat[1],dat$F_stat_sim[1],dat$F_statistic[1])
+      colnames(F_stat) <- c("id.exposure","len_SNP","samplesize.exposure","Total_R_Square","F_stat","F_stat_sim","F_statistic")
       
-      try(dat<-dat%>%select(beta.exposure, se.exposure, beta.outcome,se.outcome, mr_keep, id.exposure, id.outcome, 
+      try(dat<-dat%>%select(beta.exposure, se.exposure, beta.outcome,se.outcome, mr_keep, id.exposure, id.outcome,
                             exposure, outcome, SNP,pval.exposure, pval.outcome, samplesize.exposure,
-                            len_SNP, R_Square, Total_R_Square, F_stat, F_stat_sim), silent=TRUE)
+                            len_SNP, R_Square, Total_R_Square, F_stat, F_stat_sim,F_statistic), silent=TRUE)
       
       # dat$af=0.07
       # dat$ncase=1610
@@ -169,7 +171,7 @@ My_MR <- function(exp_dat,outcome_dat) {
             res <- mr(dat)
             final_res = res[res$method=='Inverse variance weighted',]
           }
-        } 
+        }
       } else {
         if (length(which(dat$mr_keep=='TRUE'))>2) {
           #Horizontal pleiotropy
@@ -210,8 +212,7 @@ My_MR <- function(exp_dat,outcome_dat) {
       }
     }
   }
-    
-
+  
   rm(dat)
   try(dat<- exp_dat %>% inner_join(outcome_dat, by= "SNP"), silent=TRUE)
   dat=dat[is.na(dat$effect_allele.exposure)==FALSE ,]
@@ -231,7 +232,7 @@ My_MR <- function(exp_dat,outcome_dat) {
     dat$mr_keep=TRUE
     colnames(dat)[colnames(dat)=="beta.outcome"] <- "beta.o_old"
     colnames(dat)[colnames(dat)=="betaYG"] <- "beta.outcome"
-    try(dat<-dat%>%select(beta.exposure, se.exposure, beta.outcome,se.outcome, mr_keep, id.exposure, id.outcome, 
+    try(dat<-dat%>%select(beta.exposure, se.exposure, beta.outcome,se.outcome, mr_keep, id.exposure, id.outcome,
                           exposure, outcome, SNP,pval.exposure, pval.outcome, samplesize.exposure), silent=TRUE)
     
     dat=dat[is.na(dat$beta.outcome)==FALSE ,]
@@ -325,7 +326,7 @@ My_MR <- function(exp_dat,outcome_dat) {
       }
     }
   }
-    
+  
   if (exists("final_res")==TRUE ) {
     final_res$Test=n
     names(final_res)[names(final_res) == "method"] <- "Methods"
@@ -342,7 +343,9 @@ My_MR <- function(exp_dat,outcome_dat) {
       final_res$Total_R_Square=NA
       final_res$F_stat=NA
       final_res$F_stat_sim=NA
+      final_res$F_statistic=NA
     }
+    
     
     # if (exists("Steiger")==TRUE){
     #   final_res<- Steiger %>% right_join(final_res, by= "id.exposure")
@@ -465,7 +468,7 @@ My_MR <- function(exp_dat,outcome_dat) {
       final_res$b_IVW=NA
       final_res$se_IVW=NA
       final_res$pval_IVW=NA
-    } 
+    }
     
     if (exists("IVW_MRE")==TRUE){
       names(IVW_MRE)[names(IVW_MRE) == "b"] <- "b_IVW_MRE"
@@ -492,8 +495,8 @@ My_MR <- function(exp_dat,outcome_dat) {
                                   Egger_intercept, pval_intercept, Het_IVW_pval, Het_Egger_pval,
                                   b_W_Med, se_W_Med, pval_W_Med, b_W_Mod, se_W_Mod, pval_W_Mod,
                                   b_PRESSO_raw, se_PRESSO_raw, pval_PRESSO_raw, b_PRESSO_corrected, se_PRESSO_corrected, pval_PRESSO_corrected, pval_PRESSO_Global,
-                                  Methods, nsnps, Beta, SE, pval, 
-                                  len_SNP, samplesize.exposure, Total_R_Square, F_stat, F_stat_sim)
+                                  Methods, nsnps, Beta, SE, pval,
+                                  len_SNP, samplesize.exposure, Total_R_Square, F_stat, F_stat_sim, F_statistic)
     
     final_res[is.na(final_res) ] <- "-"
     #####################      @@@@@@@@@@@@@ change file name
@@ -534,7 +537,6 @@ for (n in COVID_LIST) {
     }
   }
 }
-
 
 ######
 

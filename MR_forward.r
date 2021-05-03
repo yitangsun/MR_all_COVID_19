@@ -33,10 +33,12 @@ ao <- available_outcomes()
 Pathway_SNP="/scratch/ys98038/UKB/plink2_format/COVID_19/Analyses/SNP/"
 Pathway_geno="/scratch/ys98038/UKB/plink2_format/COVID_19/Analyses/Genotype/"
 Pathway_out="/scratch/ys98038/UKB/plink2_format/COVID_19/Analyses/MR_result/result_ALL_03_21/"
-#COVID_LIST=c("HGI_round_4_A1","HGI_round_4_A2","HGI_round_4_B1","HGI_round_4_B2","HGI_round_4_C1","HGI_round_4_C2","HGI_round_5_A2_eur","HGI_round_5_A2_eur_leave_ukbb","HGI_round_5_B1_eur","HGI_round_5_B1_eur_leave_ukbb","HGI_round_5_B2_eur","HGI_round_5_B2_eur_leave_ukbb","HGI_round_5_C2_eur","HGI_round_5_C2_eur_leave_ukbb")
+COVID_LIST=c("HGI_round_4_A1","HGI_round_4_A2","HGI_round_4_B1","HGI_round_4_B2","HGI_round_4_C1","HGI_round_4_C2","HGI_round_5_A2_eur","HGI_round_5_A2_eur_leave_ukbb","HGI_round_5_B1_eur","HGI_round_5_B1_eur_leave_ukbb","HGI_round_5_B2_eur","HGI_round_5_B2_eur_leave_ukbb","HGI_round_5_C2_eur","HGI_round_5_C2_eur_leave_ukbb")
 
-COVID_LIST=c("")
+NEJM_LIST=c("data_test10")
+
 Out_Geno_filename="_All_trait_03_21.txt"
+Old_Out_Geno_filename="_All_trait.csv"
 Trait_filename="All_Trait_IEU_GWAS.txt"
 
 My_MR <- function(exp_dat,outcome_dat) {
@@ -539,5 +541,38 @@ for (n in COVID_LIST) {
 }
 
 ######
+#NEJM
+for (n in NEJM_LIST) {
+  outcomefile=paste(Pathway_geno,  n ,Old_Out_Geno_filename, sep="")
+  ####### Change csv file
+  outcome_dat=read_outcome_data(
+    filename = outcomefile,
+    snps = NULL,
+    sep = " ",
+    #phenotype_col = "outcome",
+    snp_col = "V4",
+    beta_col = "beta",
+    se_col = "standard_error",
+    #eaf_col = "all_meta_AF",
+    effect_allele_col = "effect_allele",
+    other_allele_col = "other_allele",
+    #samplesize_col = "all_meta_sample_N",
+    pval_col = "p_value")
+  
+  Inputfile=paste(Pathway_SNP, Trait_filename, sep="")
+  Trait <- read.csv(Inputfile,header=F, as.is=T,sep = "\t")
+  
+  len_exp_file=length(Trait$V1)
+  for (e in c(2:len_exp_file)) {
+    exp_dat <- extract_instruments(Trait$V1[e])
+    if (length(exp_dat$SNP)>0) {
+      exp_dat=exp_dat[exp_dat$beta.exposure != 0, ]
+      exp_dat=exp_dat[exp_dat$se.exposure != 0, ]
+      if (length(exp_dat$SNP)>0) {
+        My_MR(exp_dat,outcome_dat)
+      }
+    }
+  }
+}
 
 #  for (e in c(2:352,354:387,389:9193, 9195:13475, 13477:13535, 13537:13560, 13562:18063, 18065:33689, 33691:33701, 33704:33707, 33709:33837, 33839:33916, 33920:34010, 34012:34094, 34096:34252, 34254:len_exp_file)) {

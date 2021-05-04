@@ -37,8 +37,11 @@ COVID_LIST=c("HGI_round_4_A1","HGI_round_4_A2","HGI_round_4_B1","HGI_round_4_B2"
 
 NEJM_LIST=c("data_test10")
 
+HGI4a_LIST=c("data_test11","data_test12")
+
 Out_Geno_filename="_All_trait_03_21.txt"
 Old_Out_Geno_filename="_All_trait.csv"
+Old_Out_Geno_filename_1="_all.csv"
 Trait_filename="All_Trait_IEU_GWAS.txt"
 
 My_MR <- function(exp_dat,outcome_dat) {
@@ -493,7 +496,7 @@ My_MR <- function(exp_dat,outcome_dat) {
     #                               snp_r2.exposure, snp_r2.outcome, Correct_causal_direction,steiger_pval,
     #                               len_SNP, samplesize.exposure, Total_R_Square, F_stat, F_stat_sim)
     
-    final_res<-final_res%>%select(Test, id, trait, b_IVW_MRE, se_IVW_MRE, pval_IVW_MRE, b_Egger, se_Egger, pval_Egger,
+    final_res<-final_res%>%select(Test, id, trait, b_IVW_MRE, se_IVW_MRE, pval_IVW_MRE, b_Egger, se_Egger, pval_Egger,b_Wald, se_Wald, pval_Wald,
                                   Egger_intercept, pval_intercept, Het_IVW_pval, Het_Egger_pval,
                                   b_W_Med, se_W_Med, pval_W_Med, b_W_Mod, se_W_Mod, pval_W_Mod,
                                   b_PRESSO_raw, se_PRESSO_raw, pval_PRESSO_raw, b_PRESSO_corrected, se_PRESSO_corrected, pval_PRESSO_corrected, pval_PRESSO_Global,
@@ -574,5 +577,39 @@ for (n in NEJM_LIST) {
     }
   }
 }
+
+for (n in HGI4a_LIST) {
+  outcomefile=paste(Pathway_geno,  n ,Old_Out_Geno_filename_1, sep="")
+  ####### Change csv file
+  outcome_dat=read_outcome_data(
+    filename = outcomefile,
+    snps = NULL,
+    sep = "\t",
+    #phenotype_col = "outcome",
+    snp_col = "V4",
+    beta_col = "all_inv_var_meta_beta",
+    se_col = "all_inv_var_meta_sebeta",
+    eaf_col = "all_meta_AF",
+    effect_allele_col = "ALT",
+    other_allele_col = "REF",
+    #samplesize_col = "all_meta_sample_N",
+    pval_col = "all_inv_var_meta_p")
+  
+  Inputfile=paste(Pathway_SNP, Trait_filename, sep="")
+  Trait <- read.csv(Inputfile,header=F, as.is=T,sep = "\t")
+  
+  len_exp_file=length(Trait$V1)
+  for (e in c(2:len_exp_file)) {
+    exp_dat <- extract_instruments(Trait$V1[e])
+    if (length(exp_dat$SNP)>0) {
+      exp_dat=exp_dat[exp_dat$beta.exposure != 0, ]
+      exp_dat=exp_dat[exp_dat$se.exposure != 0, ]
+      if (length(exp_dat$SNP)>0) {
+        My_MR(exp_dat,outcome_dat)
+      }
+    }
+  }
+}
+
 
 #  for (e in c(2:352,354:387,389:9193, 9195:13475, 13477:13535, 13537:13560, 13562:18063, 18065:33689, 33691:33701, 33704:33707, 33709:33837, 33839:33916, 33920:34010, 34012:34094, 34096:34252, 34254:len_exp_file)) {

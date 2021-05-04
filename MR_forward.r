@@ -584,7 +584,7 @@ for (n in HGI4a_LIST) {
   outcome_dat=read_outcome_data(
     filename = outcomefile,
     snps = NULL,
-    sep = "\t",
+    sep = " ",
     #phenotype_col = "outcome",
     snp_col = "V4",
     beta_col = "all_inv_var_meta_beta",

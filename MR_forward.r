@@ -69,18 +69,21 @@ My_MR <- function(exp_dat,outcome_dat) {
     
     if (length(dat$SNP)>0) {
       dat$len_SNP=length(dat$SNP)
-      dat$R_Square = 2*(dat$beta.exposure^2)*dat$eaf.exposure*(1-dat$eaf.exposure)
+      try(dat$R_Square<- 2*(dat$beta.exposure^2)*dat$eaf.exposure*(1-dat$eaf.exposure), silent=TRUE)
       dat$Total_R_Square = sum(dat$R_Square)
-      dat$F_stat=dat$Total_R_Square*(dat$len_SNP)*(dat$samplesize.exposure-dat$len_SNP-1)/(1-dat$Total_R_Square)
-      dat$F_stat_sim=dat$Total_R_Square*(dat$samplesize.exposure)/(dat$len_SNP)
+      #try(dat$F_stat_no_SD <- dat$Total_R_Square*(dat$samplesize.exposure-dat$len_SNP-1)/((1-dat$Total_R_Square)*(dat$len_SNP)), silent=TRUE)
+      try(dat$Total_R_Square <- dat$Total_R_Square/(dat$SD^2), silent=TRUE)
+      try(dat$F_stat <- dat$Total_R_Square*(dat$samplesize.exposure-dat$len_SNP-1)/((1-dat$Total_R_Square)*(dat$len_SNP)), silent=TRUE)
+      #try(dat$F_stat_sim_no_SD <- dat$Total_R_Square*(dat$samplesize.exposure)/(dat$len_SNP), silent=TRUE)
+      try(dat$F_stat_sim <- dat$Total_R_Square*(dat$samplesize.exposure)/(dat$len_SNP), silent=TRUE)
       dat$F_statistic_pre = (dat$beta.exposure/dat$se.exposure)^2
       dat$F_statistic = sum(dat$F_statistic_pre)
-      F_stat=data.frame(dat$id.exposure[1],dat$len_SNP[1],dat$samplesize.exposure[1],dat$Total_R_Square[1],dat$F_stat[1],dat$F_stat_sim[1],dat$F_statistic[1])
-      colnames(F_stat) <- c("id.exposure","len_SNP","samplesize.exposure","Total_R_Square","F_stat","F_stat_sim","F_statistic")
+      try(F_stat <- data.frame(dat$id.exposure[1],dat$len_SNP[1],dat$samplesize.exposure[1],dat$Total_R_Square[1],dat$F_stat[1],dat$F_stat_sim[1],dat$F_statistic[1]), silent=TRUE)
+      try(colnames(F_stat) <- c("id.exposure","len_SNP","samplesize.exposure","Total_R_Square","F_stat","F_stat_sim","F_statistic"), silent=TRUE)
       
       try(dat<-dat%>%select(beta.exposure, se.exposure, beta.outcome,se.outcome, mr_keep, id.exposure, id.outcome,
                             exposure, outcome, SNP,pval.exposure, pval.outcome, samplesize.exposure,
-                            len_SNP, R_Square, Total_R_Square, F_stat, F_stat_sim,F_statistic), silent=TRUE)
+                            len_SNP,  Total_R_Square, F_stat, F_stat_sim,F_statistic), silent=TRUE)
       
       # dat$af=0.07
       # dat$ncase=1610

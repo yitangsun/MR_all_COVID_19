@@ -1,4 +1,4 @@
-# Prioritizing Causal Risk Factors for Severe COVID-19: An Exhaustive Mendelian Randomization Study
+# Extensive Mendelian randomization study identifies potential causal risk factors for severe COVID-19
 (16th of January 2021, updated 20th of March 2021)
 
 **Prioritizing Causal Risk Factors for Severe COVID-19: An Exhaustive Mendelian Randomization Study**

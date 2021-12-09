@@ -1,8 +1,11 @@
 # Extensive Mendelian randomization study identifies potential causal risk factors for severe COVID-19
 (16th of January 2021, updated 20th of March 2021)
 
+**Extensive Mendelian randomization study identifies potential causal risk factors for severe COVID-19**
+is now published in [Communications Medicine](https://www.nature.com/articles/s43856-021-00061-9)
+
 **Prioritizing Causal Risk Factors for Severe COVID-19: An Exhaustive Mendelian Randomization Study**
-is published in [Research Square](https://www.researchsquare.com/article/rs-149087/v1)
+(early virsion) was published in [Research Square](https://www.researchsquare.com/article/rs-149087/v1)
 
 ## Table of Contents
 
